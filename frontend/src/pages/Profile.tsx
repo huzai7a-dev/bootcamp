@@ -17,11 +17,12 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import SearchIcon from '@mui/icons-material/Search';
 import { IconButton, InputAdornment } from "@mui/material";
+import { AppDispatch } from "../main";
 
 // Profile component definition
 const Profile = () => {
   // State and Redux hooks for dispatching actions and selecting state
-  const dispatch = useAppDispatch();
+  const dispatch:AppDispatch = useAppDispatch();
   const { movies, totalPages, currentPage } = useAppSelector(
     (state) => state.movies
   );

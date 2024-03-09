@@ -1,54 +1,50 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Scatter } from 'react-chartjs-2';
 import { Chart as ChartJS, Tooltip, Legend, LinearScale, PointElement, Title } from 'chart.js';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchReleasesPerYear } from '../reducers/moviesStatsSlice';
+import { AppDispatch, RootState } from '../main';
 
 ChartJS.register(Tooltip, Legend, LinearScale, PointElement, Title);
 
-const options = {
-  scales: {
-    x: {
-      type: 'linear',
-      position: 'bottom'
-    }
-  },
-  plugins: {
-    title: {
-      display: true,
-      text: 'Number of Releases Per Year'
-    }
-  }
-};
 
 export default function ReleasesPerYearChart() {
-  const [data, setData] = useState({
-    datasets: [
-      {
-        label: 'Number of Releases',
-        data: [],
-        backgroundColor: 'rgba(255, 99, 132, 1)',
-      }
-    ],
-  });
+    const dispatch:AppDispatch = useDispatch();
+    const {releaseChartData} = useSelector((state:RootState)=>  state.moviesStats);
+    useEffect(()=> {
+        dispatch(fetchReleasesPerYear());
+    },[dispatch]);
 
-  useEffect(() => {
-    fetch('http://localhost:3000/movies/releases-per-year')
-      .then(response => response.json())
-      .then(data => {
-        const formattedData = data.map(item => ({
-          x: item._id,
-          y: item.numberOfReleases
-        }));
-        setData({
-          datasets: [
-            {
-              ...data.datasets[0],
-              data: formattedData
+    return (
+        <Scatter options={{
+            scales: {
+                x: {
+                    type: 'linear',
+                    position: 'bottom',
+                    title: {
+                        display: true,
+                        text: 'Year'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Number of Releases'
+                    },
+                    beginAtZero: true,
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Number of Releases Per Year'
+                },
+                legend: {
+                    display: false,
+                }
             }
-          ]
-        });
-      })
-      .catch(error => console.error('Error fetching data:', error));
-  }, []);
-
-  return <Scatter options={options} data={data} />;
+        }}
+            data={releaseChartData}
+        />
+    )
 }

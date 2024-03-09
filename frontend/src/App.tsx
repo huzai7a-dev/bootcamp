@@ -20,6 +20,7 @@ import Profile from "./pages/Profile";
 import ProtectRoute from "./ProtectRoute";
 import Layout from "./components/layout";
 import Dashboard from "./pages/dashboard";
+import { AppDispatch } from "./main";
 
 // Define the shape of your state, adjust according to your state structure
 export interface RootState {
@@ -42,24 +43,17 @@ const App: React.FC = () => {
   });
 
   const theme = getTheme(darkMode);
-  const dispatch = useDispatch();
+  const dispatch:AppDispatch = useDispatch();
   const authState = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
-    dispatch(checkStatus() as any);
+    dispatch(checkStatus());
   }, [dispatch]);
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        {/* Pass isLoggedIn state to the Header component */}
-        {/* {authState.isLoggedIn &&
-          <Header
-            darkMode={darkMode}
-            setDarkMode={setDarkMode}
-          />
-        } */}
         <Layout darkMode={darkMode} setDarkMode={setDarkMode} isAuthenticated={authState.isLoggedIn}>
           <Routes>
             <Route element={<ProtectRoute />}>
