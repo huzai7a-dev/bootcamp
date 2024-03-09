@@ -15,10 +15,11 @@ import { checkStatus } from "./reducers/authSlice";
 import getTheme from "./services/theme";
 
 // Component imports
-import Header from "./components/Header";
-import LoginPage from "./components/LoginPage";
-import Profile from "./components/Profile";
+import LoginPage from "./pages/LoginPage";
+import Profile from "./pages/Profile";
 import ProtectRoute from "./ProtectRoute";
+import Layout from "./components/layout";
+import Dashboard from "./pages/dashboard";
 
 // Define the shape of your state, adjust according to your state structure
 export interface RootState {
@@ -27,6 +28,7 @@ export interface RootState {
     user: {
       _id: string;
       displayName: string;
+      image?: string
       // Add other user fields as needed
     } | null;
   };
@@ -52,18 +54,21 @@ const App: React.FC = () => {
       <CssBaseline />
       <Router>
         {/* Pass isLoggedIn state to the Header component */}
-        {authState.isLoggedIn &&
+        {/* {authState.isLoggedIn &&
           <Header
             darkMode={darkMode}
             setDarkMode={setDarkMode}
           />
-        }
-        <Routes>
-          <Route element={<ProtectRoute/>}>
-            <Route path="/" element={<Profile />} />
-            <Route path="/login" element={<LoginPage />} />
-          </Route>
-        </Routes>
+        } */}
+        <Layout darkMode={darkMode} setDarkMode={setDarkMode} isAuthenticated={authState.isLoggedIn}>
+          <Routes>
+            <Route element={<ProtectRoute />}>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/movies" element={<Profile />} />
+              <Route path="/login" element={<LoginPage />} />
+            </Route>
+          </Routes>
+        </Layout>
       </Router>
     </ThemeProvider>
   );

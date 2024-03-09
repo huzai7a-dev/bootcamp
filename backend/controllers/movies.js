@@ -39,4 +39,90 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get('/average-budget-per-year', async (req, res) => {
+  try {
+    const pipeline = [
+      {
+        $match: {
+          "Release Date": { $ne: "" } // Exclude documents where 'Release Date' is an empty string
+        }
+      },
+      {
+        $addFields: {
+          convertedDate: { 
+            $cond: {
+              if: { $ne: ["$Release Date", null] }, // Ensure 'Release Date' is not null
+              then: { $toDate: "$Release Date" },
+              else: null // Skip conversion if 'Release Date' is null
+            }
+          }
+        }
+      },
+      {
+        $match: {
+          convertedDate: { $ne: null }
+        }
+      },
+      {
+        $group: {
+          _id: { $year: "$convertedDate" },
+          averageBudget: { $avg: "$Production Budget" }
+        }
+      },
+      {
+        $addFields: {
+          averageBudgetMillions: { 
+            $divide: ["$averageBudget", 1000000]
+          }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ];
+    
+
+    const result = await Movie.aggregate(pipeline);
+
+    res.json(result);
+  } catch (e) {
+    console.error(e);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+router.get('/releases-per-year', async (req, res) => {
+  try {
+
+    const pipeline = [
+      {
+        $match: {
+          "Release Date": { $ne: "" } // Ensure 'Release Date' is not empty
+        }
+      },
+      {
+        $addFields: {
+          "convertedReleaseDate": {
+            $toDate: "$Release Date" // Convert 'Release Date' to a date object
+          }
+        }
+      },
+      {
+        $group: {
+          _id: { $year: "$convertedReleaseDate" }, // Group by year
+          numberOfReleases: { $sum: 1 } // Count releases per year
+        }
+      },
+      { 
+        $sort: { "_id": 1 } // Sort by year
+      }
+    ];
+    
+    const result = await Movie.aggregate(pipeline);
+
+    res.json(result);
+  } catch (e) {
+    console.error(e);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 module.exports = router;
