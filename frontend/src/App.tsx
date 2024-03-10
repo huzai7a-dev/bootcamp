@@ -16,7 +16,7 @@ import getTheme from "./services/theme";
 
 // Component imports
 import LoginPage from "./pages/LoginPage";
-import Profile from "./pages/Profile";
+import Profile from "./pages/Movies";
 import ProtectRoute from "./ProtectRoute";
 import Layout from "./components/layout";
 import Dashboard from "./pages/dashboard";

@@ -3,9 +3,18 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios"; // For making API requests
 import { MOVIES_URL } from "../services/config"; // Base URL for movie data
 
+interface Movie {
+  _id: string;
+  "Release Date": string; // Assuming dates come as strings
+  "Movie Title": string;
+  "Production Budget": number;
+  "Domestic Gross": number;
+  "Worldwide Gross": number;
+}
+
 // Defining the structure for our movie state
 interface MovieState {
-  movies: any[]; // Array to store movie objects
+  movies: Movie[]; // Array to store movie objects
   totalPages: number; // Total number of pages for pagination
   currentPage: number; // Current page in the pagination
   search: string; // Search term for filtering movies
@@ -13,6 +22,59 @@ interface MovieState {
   error: string | null; // Error message
 }
 
+interface BudgetFilter {
+  min?: number;
+  max?: number;
+}
+
+interface DateFilter {
+  start?: Date | null;
+  end?: Date | null;
+}
+
+const getFilteredMovies = (
+  movies: Movie[],
+  budgetFilter: BudgetFilter,
+  dateFilter: DateFilter
+): Movie[] => {
+  return movies.filter((movie) => {
+    const releaseDate = new Date(movie["Release Date"]);
+    const start = dateFilter.start ? new Date(dateFilter.start) : undefined;
+    const end = dateFilter.end ? new Date(dateFilter.end) : undefined;
+    const withinBudgetRange =
+      (!budgetFilter.min || movie["Production Budget"] >= budgetFilter.min) &&
+      (!budgetFilter.max || movie["Production Budget"] <= budgetFilter.max);
+    const withinDateRange =
+      (!start || releaseDate >= start) && (!end || releaseDate <= end);
+
+    return withinBudgetRange && withinDateRange;
+  });
+};
+
+const getSortedMovies = (
+  movies: Movie[],
+  sortCriteria: keyof Omit<Movie, "_id">
+) => {
+  const sortedMovies = movies.sort((a, b) => {
+    // Sorting logic here, adjust according to your needs
+    switch (sortCriteria) {
+      case "Release Date":
+        return (
+          Number(new Date(a["Release Date"])) -
+          Number(new Date(b["Release Date"]))
+        );
+      case "Production Budget":
+        return a["Production Budget"] - b["Production Budget"];
+      case "Domestic Gross":
+        return a["Domestic Gross"] - b["Domestic Gross"];
+      case "Worldwide Gross":
+        return a["Worldwide Gross"] - b["Worldwide Gross"];
+      default:
+        return 0;
+    }
+  });
+  return sortedMovies;
+};
 // Initial state for the movie slice
 const initialState: MovieState = {
   movies: [],
@@ -48,6 +110,16 @@ const moviesSlice = createSlice({
     setSearch(state, action) {
       state.search = action.payload;
     },
+    sortMovies(state, action) {
+      state.movies = getSortedMovies(
+        state.movies,
+        action.payload as keyof Omit<Movie, "_id">
+      );
+    },
+    filterMovies(state, action) {
+      const { budgetFilter, dateFilter } = action.payload;
+      state.movies = getFilteredMovies(state.movies, budgetFilter, dateFilter);
+    },
   },
   extraReducers(builder) {
     // Handling different states of the fetchMovies async thunk
@@ -70,5 +142,6 @@ const moviesSlice = createSlice({
 });
 
 // Exporting the reducer actions and the reducer itself for store configuration
-export const { setPage, setSearch } = moviesSlice.actions;
+export const { setPage, setSearch, sortMovies, filterMovies } =
+  moviesSlice.actions;
 export default moviesSlice.reducer;
