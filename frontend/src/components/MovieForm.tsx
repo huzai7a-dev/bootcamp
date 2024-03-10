@@ -3,6 +3,9 @@ import { Button, TextField, Box, Typography, Grid } from '@mui/material';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { Container } from '@mui/system';
+import { AppDispatch, RootState } from '../main';
+import { useDispatch, useSelector } from 'react-redux';
+import { createMovie } from '../reducers/createMovieSlice';
 
 interface MovieFormValues {
   releaseDate: Date | null;
@@ -27,9 +30,11 @@ interface FormErrors {
   domesticGross?: string;
   worldwideGross?: string;
 }
-export default function MovieForm() {
+export default function MovieForm({closeForm}:{closeForm:()=> void}) {
   const [formValues, setFormValues] = useState<MovieFormValues>(defaultValues);
   const [formErrors, setFormErrors] = useState<Partial<FormErrors>>({});
+  const dispatch:AppDispatch = useDispatch();
+  const {loading} = useSelector((state:RootState)=>  state.createMovie);
 
   const validate = (values: MovieFormValues):FormErrors => {
     const errors:FormErrors = {};
@@ -57,13 +62,13 @@ export default function MovieForm() {
     return errors;
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     console.log(formValues);
     const errors = validate(formValues);
     if (Object.keys(errors).length === 0) {
-      console.log('Form data:', formValues);
-      // Here you would usually send the data to the server
+      await dispatch(createMovie(formValues));
+      closeForm()
     } else {
       setFormErrors(errors);
     }
@@ -149,8 +154,8 @@ export default function MovieForm() {
             />
           </Grid>
           <Grid item xs={12} sx={{ mt: 2 }}>
-            <Button type="submit" fullWidth variant="contained" sx={{ py: 1.5 }}>
-              Create Movie
+            <Button disabled={loading} type="submit" fullWidth variant="contained" sx={{ py: 1.5 }}>
+              {loading ? "Processing" : "Create Movie"}
             </Button>
           </Grid>
         </Grid>

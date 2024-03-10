@@ -10,7 +10,7 @@ function convertISOToSimpleDate(isoDateStr) {
   return `${month}/${day}/${year}`;
 }
 router.get("/", async (req, res) => {
-  const { page = 1, limit = 10, search = "", orderBy,startDate,endDate,minBudget,maxBudget } = req.query;
+  const { page = 1, limit = 10, search = "", orderBy, startDate, endDate, minBudget, maxBudget } = req.query;
 
   try {
     const pageNum = parseInt(page, 10);
@@ -37,7 +37,7 @@ router.get("/", async (req, res) => {
         searchQuery["Production Budget"].$lte = parseInt(maxBudget, 10);
       }
     }
-  
+
     let sortQuery = {};
     if (orderBy) {
       sortQuery[orderBy] = 1;
@@ -146,6 +146,17 @@ router.get('/releases-per-year', async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).send('Internal Server Error');
+  }
+});
+
+router.post('/', async (req, res) => {
+  try {
+    const { releaseDate, movieTitle, productionBudget, domesticGross, worldwideGross } = req.body;
+    const newMovie = new Movie({ releaseDate: releaseDate, movieTitle: movieTitle, productionBudget: Number(productionBudget) || 0, domesticGross: Number(domesticGross), worldwideGross: Number(worldwideGross) });
+    await newMovie.save();
+    res.status(201).json({ message: 'Movie created successfully', movie: newMovie });
+  } catch (error) {
+    res.status(400).json({ message: 'Failed to create movie', error: error.message });
   }
 });
 

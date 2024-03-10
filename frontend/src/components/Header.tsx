@@ -4,9 +4,6 @@ import { useDispatch, useSelector } from "react-redux";
 
 // MUI component imports
 import {
-  AppBar,
-  Toolbar,
-  Container,
   IconButton,
   Button,
   Box,
@@ -18,12 +15,12 @@ import Brightness4Icon from "@mui/icons-material/Brightness4";
 // Router and other imports
 import { logout } from "../reducers/authSlice";
 import { RootState } from "../App";
+import { AppDispatch } from "../main";
 
 // TypeScript interface for component props
 interface HeaderProps {
   darkMode: boolean;
   setDarkMode: (value: boolean) => void;
-  // isLoggedIn: boolean;
 }
 
 // Header functional component
@@ -31,16 +28,15 @@ const Header: React.FC<HeaderProps> = ({
   darkMode,
   setDarkMode,
 }) => {
-  const dispatch = useDispatch();
+  const dispatch:AppDispatch = useDispatch();
   const authState = useSelector((state: RootState) => state.auth);
 
   // Event handler for logging out
   const handleLogout = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    dispatch(logout() as any);
+    dispatch(logout());
   };
 
-  // Component render
   return (
           <Box
             sx={{
@@ -57,26 +53,10 @@ const Header: React.FC<HeaderProps> = ({
 
             {/* User authentication and theme toggle buttons */}
             <Box>
-              {/* <Typography color="inherit" style={{ marginRight: "20px" }}>
-                    {authState.user?.displayName}
-                  </Typography> */}
               <Button color="inherit" onClick={handleLogout}>
                 Logout
               </Button>
-              {/* {isLoggedIn ? (
-                <>
-                  <Typography color="inherit" style={{ marginRight: "20px" }}>
-                    {username}
-                  </Typography>
-                  <Button color="inherit" onClick={handleLogout}>
-                    Logout
-                  </Button>
-                </>
-              ) : (
-                <Button color="inherit" component={Link} to="/login">
-                  Login
-                </Button>
-              )} */}
+
               <IconButton onClick={() => setDarkMode(!darkMode)} color="inherit">
                 {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
               </IconButton>
