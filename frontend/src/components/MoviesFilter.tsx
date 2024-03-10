@@ -1,17 +1,26 @@
-import { Button, TextField } from "@mui/material";
+import React, { useState } from "react";
 import { Box } from "@mui/system";
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers';
-import { useState } from "react";
-import { AppDispatch } from "../main";
+import { TextField, Button } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { filterMovies } from "../reducers/moviesSlice";
+import { setFilter } from "../reducers/moviesSlice";
 
 const MoviesFilter = () => {
   const [filterBudget, setFilterBudget] = useState({ min: '', max: '' });
-  const [filterReleaseDate, setFilterReleaseDate] = useState({ start: null, end: null });
-  const dispatch: AppDispatch = useDispatch();
+  const [filterReleaseDate, setFilterReleaseDate] = useState<{ start: Date | null, end: Date | null }>({ start: null, end: null });
+  const dispatch = useDispatch();
+
+  const handleFilterApply = () => {
+    dispatch(setFilter({
+      startDate: filterReleaseDate.start,
+      endDate: filterReleaseDate.end,
+      minBudget: filterBudget.min,
+      maxBudget: filterBudget.max
+    }));
+  };
+
   return (
     <Box sx={{ mb: 2, width: '100%', display: 'flex', justifyContent: 'space-between' }}>
       <TextField
@@ -56,9 +65,9 @@ const MoviesFilter = () => {
           }}
         />
       </LocalizationProvider>
-      <Button onClick={() => dispatch(filterMovies({ budgetFilter: filterBudget, dateFilter: filterReleaseDate }))} variant="contained" sx={{ width: 180 }}>Apply Filter</Button>
+      <Button onClick={handleFilterApply} variant="contained" sx={{ width: 180 }}>Apply Filter</Button>
     </Box>
   )
 }
 
-export default MoviesFilter
+export default MoviesFilter;

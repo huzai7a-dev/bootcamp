@@ -79,7 +79,7 @@ router.get(
   (req, res) => {
     // console.log(res,'github response')
     // Redirects to the profile page upon successful authentication
-    res.redirect('http://localhost:5173/');
+    res.redirect(config.HOME_PAGE);
   }
 );
 

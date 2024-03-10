@@ -82,7 +82,7 @@ router.get(
   passport.authenticate("google", { failureRedirect: config.ROUTE.login }),
   (req, res) => {
     // Redirects to the profile page upon successful authentication
-    res.redirect('http://localhost:5173/');
+    res.redirect(config.HOME_PAGE);
   }
 );
 

@@ -1,7 +1,6 @@
 require("dotenv").config(); // Load environment variables
 
-//frontEnd URL
-const frontEndUrl = 'http://localhost:5173';
+
 // Application and database configuration
 const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI;
@@ -37,6 +36,7 @@ const CORS_OPTIONS = {
   credentials: true,
 }
 
+const HOME_PAGE = process.env.ORIGIN + '/';
 module.exports = {
   PORT,
   MONGO_URI,
@@ -48,5 +48,6 @@ module.exports = {
   GOOGLE_CALLBACK_URL,
   GITHUB_CALLBACK_URL,
   ROUTE,
-  CORS_OPTIONS
+  CORS_OPTIONS,
+  HOME_PAGE
 };

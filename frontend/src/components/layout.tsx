@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -13,77 +14,121 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import PersonalVideoIcon from '@mui/icons-material/PersonalVideo';
 import Header from './Header';
 import { Link } from 'react-router-dom';
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
+import { useTheme, useMediaQuery } from '@mui/material';
 
 const drawerWidth = 240;
 
 interface Props {
-    children: React.ReactNode,
-    isAuthenticated: boolean,
-    darkMode: boolean,
-    setDarkMode: React.Dispatch<React.SetStateAction<boolean>>
+  children: React.ReactNode,
+  isAuthenticated: boolean,
+  darkMode: boolean,
+  setDarkMode: React.Dispatch<React.SetStateAction<boolean>>
 }
+
 const routes = [
-    {
-        title: 'Dashboard',
-        path: '/',
-        Icon: DashboardIcon
-    },
-    {
-        title: 'Movies',
-        path: '/movies',
-        Icon: PersonalVideoIcon
-    },
-]
+  {
+    title: 'Dashboard',
+    path: '/',
+    Icon: DashboardIcon
+  },
+  {
+    title: 'Movies',
+    path: '/movies',
+    Icon: PersonalVideoIcon
+  },
+];
 
 export default function Layout({ children, isAuthenticated, darkMode, setDarkMode }: Props) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-    if (!isAuthenticated) return <>{children}</>
-    return (
-        <Box sx={{ display: 'flex' }}>
-            <CssBaseline />
-            <AppBar
-                position="fixed"
-                sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }}
-            >
-                <Header darkMode={darkMode} setDarkMode={setDarkMode} />
-            </AppBar>
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
 
-            <Drawer
-                sx={{
-                    width: drawerWidth,
-                    flexShrink: 0,
-                    '& .MuiDrawer-paper': {
-                        width: drawerWidth,
-                        boxSizing: 'border-box',
-                    },
-                }}
-                variant="permanent"
-                anchor="left"
+  if (!isAuthenticated) return <>{children}</>
+
+  const drawerContent = (
+    <div>
+      <Toolbar />
+      <Divider />
+      <List>
+        {routes.map((route) => (
+          <Link key={route.path} style={{ color: 'inherit', textDecoration: 'none' }} to={route.path}>
+            <ListItem disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  <route.Icon />
+                </ListItemIcon>
+                <ListItemText primary={route.title} />
+              </ListItemButton>
+            </ListItem>
+          </Link>
+        ))}
+      </List>
+    </div>
+  );
+
+  return (
+    <Box sx={{ display: 'flex' }}>
+      <CssBaseline />
+      <AppBar
+        position="fixed"
+        sx={{
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          ml: { sm: `${drawerWidth}px` },
+        }}
+      >
+        <Toolbar>
+          {isMobile && (
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={handleDrawerToggle}
+              sx={{ mr: 2, display: { sm: 'none' } }}
             >
-                <Toolbar />
-                <Divider />
-                <List>
-                    {routes.map((route) => (
-                        <Link style={{color:"black", textDecoration:"none"}} to={route.path}>
-                            <ListItem key={route.path} disablePadding>
-                                <ListItemButton>
-                                    <ListItemIcon>
-                                        <route.Icon />
-                                    </ListItemIcon>
-                                    <ListItemText primary={route.title} />
-                                </ListItemButton>
-                            </ListItem>
-                        </Link>
-                    ))}
-                </List>
-            </Drawer>
-            <Box
-                component="main"
-                sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3 }}
-            >
-                <Toolbar />
-                {children}
-            </Box>
-        </Box>
-    );
+              <MenuIcon />
+            </IconButton>
+          )}
+          <Header darkMode={darkMode} setDarkMode={setDarkMode} />
+        </Toolbar>
+      </AppBar>
+
+      <Box
+        component="nav"
+        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+      >
+        <Drawer
+          variant={isMobile ? 'temporary' : 'permanent'}
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{
+            keepMounted: true,
+          }}
+          sx={{
+            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+          }}
+        >
+          {drawerContent}
+        </Drawer>
+      </Box>
+
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          bgcolor: 'background.default',
+          p: 3,
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+        }}
+      >
+        <Toolbar />
+        {children}
+      </Box>
+    </Box>
+  );
 }

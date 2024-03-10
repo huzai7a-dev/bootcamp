@@ -42,9 +42,6 @@ const Header: React.FC<HeaderProps> = ({
 
   // Component render
   return (
-    <AppBar position="static">
-      <Container maxWidth="xl">
-        <Toolbar disableGutters>
           <Box
             sx={{
               display: "flex",
@@ -85,9 +82,6 @@ const Header: React.FC<HeaderProps> = ({
               </IconButton>
             </Box>
           </Box>
-        </Toolbar>
-      </Container>
-    </AppBar>
   );
 };
 

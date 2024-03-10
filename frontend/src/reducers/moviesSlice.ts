@@ -17,9 +17,16 @@ interface MovieState {
   movies: Movie[]; // Array to store movie objects
   totalPages: number; // Total number of pages for pagination
   currentPage: number; // Current page in the pagination
+  orderBy: keyof Omit<Movie, "_id"> | null;
+  filter?: {
+    minBudget: number;
+    maxBudget: number;
+    startDate: string;
+    endDate: string;
+  } | null;
   search: string; // Search term for filtering movies
   status: "idle" | "loading" | "succeeded" | "failed"; // Load status
-  error: string | null; // Error message
+  error: string | null; // Error message,
 }
 
 interface BudgetFilter {
@@ -80,6 +87,8 @@ const initialState: MovieState = {
   movies: [],
   totalPages: 0,
   currentPage: 1,
+  orderBy: null,
+  filter: null,
   search: "",
   status: "idle",
   error: null,
@@ -88,13 +97,43 @@ const initialState: MovieState = {
 // Asynchronous thunk for fetching movies from the API
 export const fetchMovies = createAsyncThunk(
   "movies/fetchMovies",
-  async ({ page, search }: { page: number; search: string }) => {
-    // Making an API request to fetch movies based on page and search term
-    const response = await axios.get(
-      `${MOVIES_URL}?page=${page}&search=${search}`
-    );
+  async ({
+    page,
+    search,
+    filter,
+    orderBy,
+  }: {
+    page: number;
+    search: string;
+    orderBy?: MovieState["orderBy"];
+    filter?: MovieState["filter"];
+  }) => {
+    // Start with the base URL
+    let url = `${MOVIES_URL}?page=${page}&search=${encodeURIComponent(search)}`;
+
+    // Add optional parameters if they exist
+    if (orderBy) {
+      url += `&orderBy=${encodeURIComponent(orderBy)}`;
+    }
+    if (filter?.startDate) {
+      url += `&startDate=${encodeURIComponent(filter.startDate)}`;
+    }
+    if (filter?.endDate) {
+      url += `&endDate=${encodeURIComponent(filter.endDate)}`;
+    }
+    if (filter?.minBudget !== undefined) {
+      // Check specifically for undefined since 0 is a valid budget
+      url += `&minBudget=${filter.minBudget}`;
+    }
+    if (filter?.maxBudget !== undefined) {
+      // Same as above
+      url += `&maxBudget=${filter.maxBudget}`;
+    }
+
+    // Making an API request to fetch movies
+    const response = await axios.get(url);
     return response.data; // Returning the data from the response
-  }
+  } // Returning the data from the response
 );
 
 // Slice for managing movie-related data and actions
@@ -103,6 +142,12 @@ const moviesSlice = createSlice({
   initialState, // Initial state for the slice
   reducers: {
     // Reducer to set the current page
+    setOrderBy(state, action) {
+      state.orderBy = action.payload;
+    },
+    setFilter(state, action) {
+      state.filter = action.payload;
+    },
     setPage(state, action) {
       state.currentPage = action.payload;
     },
@@ -142,6 +187,12 @@ const moviesSlice = createSlice({
 });
 
 // Exporting the reducer actions and the reducer itself for store configuration
-export const { setPage, setSearch, sortMovies, filterMovies } =
-  moviesSlice.actions;
+export const {
+  setPage,
+  setSearch,
+  setOrderBy,
+  setFilter,
+  sortMovies,
+  filterMovies,
+} = moviesSlice.actions;
 export default moviesSlice.reducer;

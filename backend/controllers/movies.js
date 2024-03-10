@@ -2,31 +2,54 @@ const express = require("express");
 const router = express.Router();
 const Movie = require("../models/Movie");
 
-// Route to fetch movies with pagination and optional search
+function convertISOToSimpleDate(isoDateStr) {
+  const date = new Date(isoDateStr);
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  return `${month}/${day}/${year}`;
+}
 router.get("/", async (req, res) => {
-  // Extract query parameters
-  const { page = 1, limit = 10, search = "" } = req.query;
+  const { page = 1, limit = 10, search = "", orderBy,startDate,endDate,minBudget,maxBudget } = req.query;
 
   try {
-    // Convert page and limit to numbers for the query
     const pageNum = parseInt(page, 10);
     const limitNum = parseInt(limit, 10);
-
-    // Calculate the number of documents to skip
     const skip = (pageNum - 1) * limitNum;
 
-    // Build the query for searching by movie title
-    // Adjust the search fields as necessary
-    const searchQuery = search
-      ? { "Movie Title": { $regex: search, $options: "i" } } // Case-insensitive regex search
-      : {};
-    // Fetch movies from the database with pagination and search
-    const movies = await Movie.find(searchQuery).skip(skip).limit(limitNum);
+    let searchQuery = search ? { "Movie Title": { $regex: search, $options: "i" } } : {};
+    if (startDate || endDate) {
+      searchQuery["Release Date"] = {};
+      if (startDate) {
+        searchQuery["Release Date"].$gte = convertISOToSimpleDate(startDate);
+      }
+      if (endDate) {
+        searchQuery["Release Date"].$lte = convertISOToSimpleDate(endDate);
+      }
+    }
 
-    // Get the total count of documents matching the search query (for pagination)
+    if (minBudget || maxBudget) {
+      searchQuery["Production Budget"] = {};
+      if (minBudget) {
+        searchQuery["Production Budget"].$gte = parseInt(minBudget, 10);
+      }
+      if (maxBudget) {
+        searchQuery["Production Budget"].$lte = parseInt(maxBudget, 10);
+      }
+    }
+  
+    let sortQuery = {};
+    if (orderBy) {
+      sortQuery[orderBy] = 1;
+    }
+    console.log(searchQuery)
+    const movies = await Movie.find(searchQuery)
+      .skip(skip)
+      .limit(limitNum)
+      .sort(sortQuery)
+
     const totalCount = await Movie.countDocuments(searchQuery);
 
-    // Send back the movies and total count (for frontend pagination)
     res.json({
       movies,
       totalPages: Math.ceil(totalCount / limitNum),
@@ -39,6 +62,7 @@ router.get("/", async (req, res) => {
   }
 });
 
+
 router.get('/average-budget-per-year', async (req, res) => {
   try {
     const pipeline = [
@@ -49,7 +73,7 @@ router.get('/average-budget-per-year', async (req, res) => {
       },
       {
         $addFields: {
-          convertedDate: { 
+          convertedDate: {
             $cond: {
               if: { $ne: ["$Release Date", null] }, // Ensure 'Release Date' is not null
               then: { $toDate: "$Release Date" },
@@ -71,14 +95,14 @@ router.get('/average-budget-per-year', async (req, res) => {
       },
       {
         $addFields: {
-          averageBudgetMillions: { 
+          averageBudgetMillions: {
             $divide: ["$averageBudget", 1000000]
           }
         }
       },
       { $sort: { _id: 1 } }
     ];
-    
+
 
     const result = await Movie.aggregate(pipeline);
 
@@ -111,11 +135,11 @@ router.get('/releases-per-year', async (req, res) => {
           numberOfReleases: { $sum: 1 } // Count releases per year
         }
       },
-      { 
+      {
         $sort: { "_id": 1 } // Sort by year
       }
     ];
-    
+
     const result = await Movie.aggregate(pipeline);
 
     res.json(result);
