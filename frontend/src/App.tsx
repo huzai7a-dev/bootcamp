@@ -8,7 +8,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 
 // Redux-related imports
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { checkStatus } from "./reducers/authSlice";
 
 // Theme import
@@ -16,7 +16,7 @@ import getTheme from "./services/theme";
 
 // Component imports
 import LoginPage from "./pages/LoginPage";
-import Profile from "./pages/Movies";
+import Movies from "./pages/Movies";
 import ProtectRoute from "./ProtectRoute";
 import Layout from "./components/layout";
 import Dashboard from "./pages/dashboard";
@@ -29,23 +29,26 @@ export interface RootState {
     user: {
       _id: string;
       displayName: string;
-      image?: string
+      image?: string;
       // Add other user fields as needed
     } | null;
   };
   // Add other state slices as needed
 }
 
+//Main entry point App
 const App: React.FC = () => {
+  // State for managing dark mode
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     const savedMode = localStorage.getItem("darkmode");
     return savedMode?.toLowerCase() === "true";
   });
 
+  // Generate theme based on dark mode setting
   const theme = getTheme(darkMode);
-  const dispatch:AppDispatch = useDispatch();
-  const authState = useSelector((state: RootState) => state.auth);
+  const dispatch: AppDispatch = useDispatch();
 
+  // Dispatch action to check authentication status when component mounts
   useEffect(() => {
     dispatch(checkStatus());
   }, [dispatch]);
@@ -54,11 +57,11 @@ const App: React.FC = () => {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        <Layout darkMode={darkMode} setDarkMode={setDarkMode} isAuthenticated={authState.isLoggedIn}>
+        <Layout darkMode={darkMode} setDarkMode={setDarkMode}>
           <Routes>
             <Route element={<ProtectRoute />}>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/movies" element={<Profile />} />
+              <Route path="/" element={<Movies />} />
+              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/login" element={<LoginPage />} />
             </Route>
           </Routes>

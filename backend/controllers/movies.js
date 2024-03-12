@@ -40,9 +40,9 @@ router.get("/", async (req, res) => {
 
     let sortQuery = {};
     if (orderBy) {
-      sortQuery[orderBy] = 1;
+      sortQuery[orderBy] = -1;
     }
-    console.log(searchQuery)
+    
     const movies = await Movie.find(searchQuery)
       .skip(skip)
       .limit(limitNum)
@@ -152,7 +152,7 @@ router.get('/releases-per-year', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const { releaseDate, movieTitle, productionBudget, domesticGross, worldwideGross } = req.body;
-    const newMovie = new Movie({ releaseDate: releaseDate, movieTitle: movieTitle, productionBudget: Number(productionBudget) || 0, domesticGross: Number(domesticGross), worldwideGross: Number(worldwideGross) });
+    const newMovie = new Movie({ "Release Date": releaseDate, "Movie Title": movieTitle, "Production Budget": Number(productionBudget) || 0, "Domestic Gross": Number(domesticGross), "Worldwide Gross": Number(worldwideGross) });
     await newMovie.save();
     res.status(201).json({ message: 'Movie created successfully', movie: newMovie });
   } catch (error) {

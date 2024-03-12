@@ -1,23 +1,23 @@
 const mongoose = require("mongoose");
 
 const movieSchema = new mongoose.Schema({
-  releaseDate: {
+  "Release Date": {
     type: Date,
     required: true,
   },
-  movieTitle: {
+  "Movie Title": {
     type: String,
     required: true,
   },
-  productionBudget: {
+  "Production Budget": {
     type: Number,
     required: true,
   },
-  domesticGross: {
+  "Domestic Gross": {
     type: Number,
     required: true,
   },
-  worldwideGross: {
+  "Worldwide Gross": {
     type: Number,
     required: true,
   },

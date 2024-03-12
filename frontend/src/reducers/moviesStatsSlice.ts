@@ -1,7 +1,13 @@
+// Redux toolkit imports for creating slices and async thunk
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+
+// axios for making GET requests to the backend
 import axios from "axios";
+
+// Import URLs for fetching movie statistics
 import { MOVIES_BUDGET_URL, MOVIES_RELEASE_URL } from "../services/config";
 
+// Interfaces for defining data structures
 interface ReleasePerYear {
   _id: number;
   numberOfReleases: number;
@@ -12,6 +18,7 @@ interface ProductionBudget {
 }
 type Status = "idle" | "loading" | "succeeded" | "failed";
 
+// Interface representing the state of movie statistics
 interface MoviesStats {
   releaseChartData: {
     datasets: {
@@ -36,6 +43,7 @@ interface MoviesStats {
   budgetChartDataError: null | unknown;
 }
 
+// Initial state for the movie statistics slice
 const initialState: MoviesStats = {
   budgetChartData: {
     labels: [],
@@ -62,6 +70,7 @@ const initialState: MoviesStats = {
   releaseChartDataError: null,
 };
 
+// Async thunk functions for fetching average budget per year and releases per year
 export const fetchAverageBudgetPerYear = createAsyncThunk(
   "movies/averageBudget",
   async () => {
@@ -80,11 +89,13 @@ export const fetchReleasesPerYear = createAsyncThunk(
   }
 );
 
+// Create a slice for handling movie statistics
 const moviesStatsSlice = createSlice({
   name: "moviesStats",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
+    // Define how the state should change in response to async thunk actions
     builder
       .addCase(fetchAverageBudgetPerYear.pending, (state) => {
         state.budgetChartDataStatus = "loading";
@@ -133,5 +144,4 @@ const moviesStatsSlice = createSlice({
   },
 });
 
-// export const {  } = moviesStatsSlice.actions;
 export default moviesStatsSlice.reducer;

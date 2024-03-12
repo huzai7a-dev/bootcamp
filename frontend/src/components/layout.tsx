@@ -1,67 +1,122 @@
-import React, { useState } from 'react';
-import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import CssBaseline from '@mui/material/CssBaseline';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import Divider from '@mui/material/Divider';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import PersonalVideoIcon from '@mui/icons-material/PersonalVideo';
-import Header from './Header';
-import { Link } from 'react-router-dom';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import { useTheme, useMediaQuery } from '@mui/material';
+// React imports for building components and managing state
+import React, { useState } from "react";
+
+// MUI core components for layout and styling
+import Box from "@mui/material/Box";
+import Drawer from "@mui/material/Drawer";
+import CssBaseline from "@mui/material/CssBaseline";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import List from "@mui/material/List";
+import Divider from "@mui/material/Divider";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import IconButton from "@mui/material/IconButton";
+import { useTheme, useMediaQuery, CircularProgress } from "@mui/material";
+
+// MUI icons for adding icons to the UI
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import PersonalVideoIcon from "@mui/icons-material/PersonalVideo";
+import MenuIcon from "@mui/icons-material/Menu";
+
+// Custom components specific to the project
+import Header from "./Header";
+
+// Router imports for navigation and location detection within the app
+import { Link, useLocation } from "react-router-dom";
+
+// Redux-related imports for state management across the app
+import { useAppSelector } from "../services/hooks";
+import { RootState } from "../main";
+
+import { routes } from "../constants/routes";
 
 const drawerWidth = 240;
 
 interface Props {
-  children: React.ReactNode,
-  isAuthenticated: boolean,
-  darkMode: boolean,
-  setDarkMode: React.Dispatch<React.SetStateAction<boolean>>
+  children: React.ReactNode;
+  darkMode: boolean;
+  setDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const routes = [
-  {
-    title: 'Dashboard',
-    path: '/',
-    Icon: DashboardIcon
-  },
-  {
-    title: 'Movies',
-    path: '/movies',
-    Icon: PersonalVideoIcon
-  },
-];
-
-export default function Layout({ children, isAuthenticated, darkMode, setDarkMode }: Props) {
+export default function Layout({ children, darkMode, setDarkMode }: Props) {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const { isLoggedIn, pending: isPending } = useAppSelector(
+    (state: RootState) => state.auth
+  );
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [mobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
+  const activeRoute = location.pathname;
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  if (!isAuthenticated) return <>{children}</>
+  if (isPending)
+    return (
+      <Box
+        display={"flex"}
+        justifyContent="center"
+        alignItems="center"
+        sx={{
+          width: "100%",
+          height: "100vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+
+  if (!isLoggedIn) return <>{children}</>;
 
   const drawerContent = (
     <div>
-      <Toolbar />
+      <Box
+        display="flex"
+        alignItems="center"
+        width="100%"
+        height="64px"
+        justifyContent="center"
+        borderBottom="1px solid #ccc"
+      >
+        <img
+          src={
+            "https://www.xgrid.co/_next/static/media/xgrid-logo-menu.83dfe4a4.svg?auto=format&fit=max&w=128"
+          }
+          alt="Logo"
+          style={{
+            width: "auto",
+            height: "40px",
+            marginRight: "10px",
+          }}
+        />
+      </Box>
       <Divider />
       <List>
         {routes.map((route) => (
-          <Link key={route.path} style={{ color: 'inherit', textDecoration: 'none' }} to={route.path}>
+          <Link
+            key={route.path}
+            style={{
+              color: theme.palette.text.primary,
+              textDecoration: "none",
+            }}
+            to={route.path}
+          >
             <ListItem disablePadding>
-              <ListItemButton>
+              <ListItemButton
+                style={{
+                  background: `${
+                    activeRoute === route.path
+                      ? "rgba(0, 0, 0, 0.08)"
+                      : "transparent"
+                  }`,
+                }}
+              >
                 <ListItemIcon>
-                  <route.Icon />
+                  <route.Icon style={{ color: theme.palette.primary.main }} />
                 </ListItemIcon>
                 <ListItemText primary={route.title} />
               </ListItemButton>
@@ -73,7 +128,7 @@ export default function Layout({ children, isAuthenticated, darkMode, setDarkMod
   );
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: "flex" }}>
       <CssBaseline />
       <AppBar
         position="fixed"
@@ -89,7 +144,7 @@ export default function Layout({ children, isAuthenticated, darkMode, setDarkMod
               aria-label="open drawer"
               edge="start"
               onClick={handleDrawerToggle}
-              sx={{ mr: 2, display: { sm: 'none' } }}
+              sx={{ mr: 2, display: { sm: "none" } }}
             >
               <MenuIcon />
             </IconButton>
@@ -103,14 +158,17 @@ export default function Layout({ children, isAuthenticated, darkMode, setDarkMod
         sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
       >
         <Drawer
-          variant={isMobile ? 'temporary' : 'permanent'}
+          variant={isMobile ? "temporary" : "permanent"}
           open={mobileOpen}
           onClose={handleDrawerToggle}
           ModalProps={{
             keepMounted: true,
           }}
           sx={{
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: drawerWidth,
+            },
           }}
         >
           {drawerContent}
@@ -121,7 +179,7 @@ export default function Layout({ children, isAuthenticated, darkMode, setDarkMod
         component="main"
         sx={{
           flexGrow: 1,
-          bgcolor: 'background.default',
+          bgcolor: "background.default",
           p: 3,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
         }}

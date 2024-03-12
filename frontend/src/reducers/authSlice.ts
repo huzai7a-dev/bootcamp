@@ -1,4 +1,7 @@
+// Importing necessary functions from Redux Toolkit for creating slices and async thunks
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+
+// Importing axios for making HTTP requests
 import axios from "axios";
 
 // Define a type for the user state that can handle different auth methods
@@ -32,20 +35,23 @@ const initialState: AuthState = {
 import { STATUS_URL } from "../services/config";
 import { LOGOUT_URL } from "../services/config";
 
+// Async thunk function to check the authentication status by sending a GET request to the server
 export const checkStatus = createAsyncThunk("auth/checkStatus", async () => {
   const response = await axios.get(STATUS_URL, {
-    withCredentials: true,
+    withCredentials: true, // Ensure that cookies are sent with the request
   });
-  return response.data;
+  return response.data; // Return the response data containing authentication status
 });
 
+// Async thunk function to logout the user by sending a POST request to the server
 export const logout = createAsyncThunk("auth/logout", async () => {
   await axios.post(LOGOUT_URL, {
-    withCredentials: true,
+    withCredentials: true, // Ensure that cookies are sent with the request
   });
-  return { isLoggedIn: false, user: null };
+  return { isLoggedIn: false, user: null }; // Return an object indicating that user is logged out
 });
 
+// Main slice for handling/managing user authentication state
 export const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -73,5 +79,5 @@ export const authSlice = createSlice({
   },
 });
 
-// Export the reducer, any synchronous actions you might have
+// Export the reducer function for the create auth slice
 export default authSlice.reducer;
