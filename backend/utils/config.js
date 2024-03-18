@@ -28,6 +28,8 @@ const ROUTE = {
   status: "/status",
   logout: "/logout",
   movies: "/movies",
+  averageBPY : "/average-budget-per-year",
+  releasePY: "/releases-per-year",
 };
 
 // cors options
@@ -49,5 +51,5 @@ module.exports = {
   GITHUB_CALLBACK_URL,
   ROUTE,
   CORS_OPTIONS,
-  HOME_PAGE
+  HOME_PAGE,
 };

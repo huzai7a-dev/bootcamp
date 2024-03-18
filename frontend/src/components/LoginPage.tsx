@@ -2,7 +2,7 @@
 import React from "react";
 
 //constant from config file
-import { BASE_URL } from "../services/config";
+import { BACKEND_URL } from "../services/config";
 
 // MUI (Material-UI) component imports
 import { Button, Card, CardContent, Typography, Box } from "@mui/material";
@@ -16,7 +16,7 @@ const LoginPage: React.FC = () => {
   // Handler for initiating OAuth login process
   const handleOAuthLogin = (provider: "google" | "github") => {
     // Constructing backend URL for OAuth
-    const backendUrl = `${BASE_URL}/auth/${provider}`;
+    const backendUrl = `${BACKEND_URL}/auth/${provider}`;
     // Redirecting to the backend URL for OAuth flow
     window.location.href = backendUrl;
   };

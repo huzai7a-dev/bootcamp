@@ -1,5 +1,7 @@
+// Import the mongoose library to interact with MongoDB
 const mongoose = require("mongoose");
 
+// Define the schema for the Movie model
 const movieSchema = new mongoose.Schema({
   "Release Date": {
     type: Date,
@@ -23,6 +25,8 @@ const movieSchema = new mongoose.Schema({
   },
 });
 
+// Define the schema for the Movie model
 const Movie = mongoose.model("Movie", movieSchema);
 
+// Export the Movie model so it can be used in other parts of the application
 module.exports = Movie;

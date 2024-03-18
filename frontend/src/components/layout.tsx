@@ -17,8 +17,6 @@ import IconButton from "@mui/material/IconButton";
 import { useTheme, useMediaQuery, CircularProgress } from "@mui/material";
 
 // MUI icons for adding icons to the UI
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import PersonalVideoIcon from "@mui/icons-material/PersonalVideo";
 import MenuIcon from "@mui/icons-material/Menu";
 
 // Custom components specific to the project
