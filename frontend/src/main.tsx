@@ -16,6 +16,28 @@ import authReducer from "./reducers/authSlice.ts";
 import moviesReducer from "./reducers/moviesSlice.ts";
 import moviesStatsReducer from "./reducers/moviesStatsSlice.ts";
 import createMovieReducer from './reducers/createMovieSlice.ts';
+import dashboardMetricsReducer from './reducers/dashboardMetricsSlice.ts';
+
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#123456', // Example color
+    },
+    secondary: {
+      main: '#789abc', // Example color
+    },
+  },
+  typography: {
+    fontFamily: 'Arial, sans-serif',
+    h5: {
+      fontWeight: 600,
+    },
+  },
+  // Add other customizations here
+});
+
 
 // Configure Redux store with reducers
 const store = configureStore({
@@ -23,14 +45,17 @@ const store = configureStore({
     auth: authReducer,
     movies: moviesReducer,
     moviesStats: moviesStatsReducer,
-    createMovie: createMovieReducer
+    createMovie: createMovieReducer,
+    dashboardMetrics:dashboardMetricsReducer
   },
 });
 
 // Render the application inside the root element
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <Provider store={store}>
-    <App />
+    <ThemeProvider theme={theme}>
+      <App />
+    </ThemeProvider>
   </Provider>
 );
 

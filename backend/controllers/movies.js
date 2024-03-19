@@ -83,6 +83,38 @@ router.get("/", async (req, res) => {
   }
 });
 
+
+router.get(config.ROUTE.keyMetrics, async (req, res) => {
+  try {
+    const totalMovies = await Movie.countDocuments();
+    const averageBudget = await Movie.aggregate([
+      { $group: { _id: null, averageBudget: { $avg: "$Production Budget" } } }
+    ]);
+    const highestGrossingMovie = await Movie.findOne().sort('-Worldwide Gross').limit(1);
+  
+    res.send({
+      totalMovies,
+      averageBudget: averageBudget.length > 0 ? averageBudget[0].averageBudget : 0,
+      highestGrossingMovie
+    });
+  } catch (error) {
+    console.error(e);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+router.get(config.ROUTE.recentMovies, async (req, res) => {
+  try {
+    const recentMovies = await Movie.find().sort('-Release Date').limit(10);
+    res.send(recentMovies);
+
+  } catch (error) {
+    console.log(error)
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+
 // Route to get the average movie budget per year
 router.get(config.ROUTE.averageBPY, async (req, res) => {
   try {

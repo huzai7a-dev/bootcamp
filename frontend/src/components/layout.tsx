@@ -31,7 +31,7 @@ import { RootState } from "../main";
 
 import { routes } from "../constants/routes";
 
-const drawerWidth = 240;
+const drawerWidth = 200;
 
 interface Props {
   children: React.ReactNode;
@@ -44,7 +44,7 @@ export default function Layout({ children, darkMode, setDarkMode }: Props) {
   const { isLoggedIn, pending: isPending } = useAppSelector(
     (state: RootState) => state.auth
   );
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const activeRoute = location.pathname;

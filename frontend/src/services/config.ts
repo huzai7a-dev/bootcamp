@@ -8,3 +8,5 @@ export const LOGOUT_URL = `${STATUS_URL}/logout`;
 export const MOVIES_URL = `${BACKEND_URL}/movies`;
 export const MOVIES_BUDGET_URL = `${MOVIES_URL}/average-budget-per-year`;
 export const MOVIES_RELEASE_URL = `${MOVIES_URL}/releases-per-year`;
+export const RECENT_MOVIES = `${MOVIES_URL}/recent`;
+export const MOVIES_METRICS = `${MOVIES_URL}/key-metrics`;

@@ -30,6 +30,8 @@ const ROUTE = {
   movies: "/movies",
   averageBPY : "/average-budget-per-year",
   releasePY: "/releases-per-year",
+  keyMetrics: "/key-metrics",
+  recentMovies:"/recent"
 };
 
 // cors options
